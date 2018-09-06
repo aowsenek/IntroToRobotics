@@ -48,17 +48,19 @@ void loop() {
   // Your state machine code goes here
   switch (current_state) {
     case STATE_ROTATING:
-      if(cm_distance < 30) {
+      if(cm_distance < 30 && cm_distance != -1) {
         current_state = STATE_SEEKING_OBJECT;
       } else {
         sparki.moveRight(30);
       }
       break;
     case STATE_SEEKING_OBJECT:
-      if(cm_distance < 7) {
+      if(cm_distance < 7 && cm_distance != -1) {
+        sparki.moveForward(3);
         current_state = STATE_GRIPPING;
+
       } else {
-        sparki.moveForward(6);
+        sparki.moveForward(2);
       }
       break;
     case STATE_GRIPPING:
@@ -72,7 +74,7 @@ void loop() {
       if (line_left < threshold) {
         sparki.moveLeft();
       }
-      if(line_right < threshold) {
+      else if(line_right < threshold) {
         sparki.moveRight();
       }
       if (line_center > threshold) {
@@ -89,16 +91,18 @@ void loop() {
         sparki.beep();
         current_state = STATE_DROPPING;
       }
+      else{
+        if (line_left < threshold) {
+            sparki.moveLeft();
+          }
+        if(line_right < threshold) {
+          sparki.moveRight();
+          }
+        if (line_center < threshold && line_right > threshold && line_left > threshold) {
+          sparki.moveForward();
+          }
+      }
 
-      if (line_left < threshold) {
-        sparki.moveLeft();
-      }
-      if(line_right < threshold) {
-        sparki.moveRight();
-      }
-      if (line_center < threshold && line_right > threshold && line_left > threshold) {
-        sparki.moveForward();
-      }
 
       break;
     case STATE_DROPPING:
@@ -120,3 +124,4 @@ void loop() {
   sparki.updateLCD();
   delay(100); // Only run controller at 10Hz
 }
+
